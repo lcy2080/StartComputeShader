@@ -1,0 +1,29 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSHeightToNormal
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> HeightRT;
+RWTexture2D<float4> NormalRT;
+
+[numthreads(32,32,1)]
+void CSHeightToNormal (uint3 id : SV_DispatchThreadID)
+{
+    // uint2 right = clamp(uint2(id.x + 1, id.y), 0, 1024);
+    // uint2 left = clamp(int2(id.x - 1, id.y), 0, 1024);
+    // uint2 up = clamp(uint2(id.x, id.y + 1), 0, 1024);
+    // uint2 down = clamp(uint2(id.x, id.y - 1), 0, 1024);
+
+    // float XDiff = 0.5 + (HeightRT[right].r - HeightRT[left].r) * 10.0;
+    // float YDiff = 0.5 + (HeightRT[up].r - HeightRT[down].r) * 10.0;
+
+    // NormalRT[id.xy] = float4(XDiff, YDiff, 1.0, 1.0);
+
+    uint4 horizontal = clamp(uint4(id.x + 1, id.y, id.x - 1, id.y), 0, 1024);
+    uint4 vertical = clamp(uint4(id.x, id.y + 1, id.x, id.y - 1), 0, 1024);
+
+    float XDiff = 0.5 + (HeightRT[horizontal.xy].r - HeightRT[horizontal.zw].r) * 10.0;
+    float YDiff = 0.5 + (HeightRT[vertical.xy].r - HeightRT[vertical.zw].r) * 10.0;
+
+    NormalRT[id.xy] = float4(XDiff, YDiff, 1.0, 1.0);
+}
