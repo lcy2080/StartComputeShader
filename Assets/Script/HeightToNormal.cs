@@ -12,6 +12,8 @@ public class HeightToNormal : MonoBehaviour
 
     public Material TargetMaterial;
 
+    public ComputeBuffer argsBuffer;
+
     void Start()
     {
         NormalRT = new RenderTexture(HeightRT.width, HeightRT.height, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear)
@@ -28,18 +30,39 @@ public class HeightToNormal : MonoBehaviour
 
         texture = new Texture2D(1024, 1024, TextureFormat.ARGB32, false, true);
         targetArray = new Color[1024 * 1024];
+
+#region Setup Indirect Dispatch Arguments
+        
+        argsBuffer = new ComputeBuffer(6, sizeof(int), ComputeBufferType.IndirectArguments);
+        int[] args = new int[6];
+        
+        args[0] = 1024 / 32;
+        args[1] = 1024 / 32;
+        args[2] = 1;
+
+        args[3] = 1024 / 64;
+        args[4] = 1024 / 64;
+        args[5] = 1;
+
+        argsBuffer.SetData(args);
+
+#endregion //Setup Indirect Dispatch Arguments
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        CPUChangeHeightToNormal();
+        ChangeHeightToNormal();
     }
 
     public void ChangeHeightToNormal()
     {
-        computeShader.Dispatch(csKernel, 1024 / 32, 1024 / 32, 1);
+        computeShader.Dispatch(csKernel, 131072, 1, 1);
+        //computeShader.DispatchIndirect(csKernel, argsBuffer, 0);
     }
+
+#region CPU Change Height to Normal
 
     Texture2D texture;
     Color[] array;
@@ -51,6 +74,7 @@ public class HeightToNormal : MonoBehaviour
         RenderTexture.active = HeightRT;
         texture.ReadPixels(new Rect(0, 0, 1024, 1024), 0, 0);
         texture.Apply();
+        //Garbage 발생
         array = texture.GetPixels();
 
         for (int i = 0; i < array.Length; i++)
@@ -74,4 +98,5 @@ public class HeightToNormal : MonoBehaviour
         Graphics.Blit(texture, NormalRT);
         RenderTexture.active = prev;
     }
+#endregion //CPU Change Height to Normal
 }
