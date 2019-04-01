@@ -58,7 +58,7 @@ public class HeightToNormal : MonoBehaviour
 
     public void ChangeHeightToNormal()
     {
-        computeShader.Dispatch(csKernel, 131072, 1, 1);
+        computeShader.Dispatch(csKernel, 1024 / 32, 1024 / 32, 1);
         //computeShader.DispatchIndirect(csKernel, argsBuffer, 0);
     }
 
