@@ -22,7 +22,7 @@ public class DefaultComputeShader : MonoBehaviour
         
         computeShader.SetTexture(csKernel, "Result", tmpRT);
         //Execute
-        computeShader.Dispatch(csKernel, 512, 512, 1);
+        computeShader.Dispatch(csKernel, 64, 64, 1);
         Graphics.CopyTexture(tmpRT, resultTexture);
 
         tmpRT.Release();
