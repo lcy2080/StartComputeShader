@@ -53,7 +53,7 @@ public class HeightToNormal : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ChangeHeightToNormal();
+        CPUChangeHeightToNormal();
     }
 
     public void ChangeHeightToNormal()
